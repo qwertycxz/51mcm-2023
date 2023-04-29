@@ -1,7 +1,10 @@
 from math import inf
 from collections import defaultdict
 from copy import deepcopy
-from csv import reader
+from csv import reader, writer
+letters = []
+for i in range(65, 91):
+	letters.append(chr(i))
 
 dist = defaultdict(lambda: inf)
 edges = []
@@ -26,7 +29,15 @@ with open('附件3.csv') as f:
 			pass
 shortest_paths = {}
 for i in bellman_ford('A'):
-	shortest_paths[i] = bellman_ford(i)
+	shortest_paths[i] = {}
+	temp = bellman_ford(i)
+	for j in letters:
+		shortest_paths[i][j] = temp[j]
+with open('第四问.csv', 'w') as f:
+	write = writer(f)
+	write.writerow(shortest_paths.keys())
+	for i in shortest_paths:
+		write.writerow(shortest_paths[i].values())
 
 sum23 = 0
 sum24 = 0

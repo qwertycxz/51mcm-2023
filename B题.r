@@ -62,7 +62,7 @@ write.csv(scaled_data, "附件1-标准化.csv")
 write.csv(entropy_weight, "附件1-权重.csv")
 # 结果见 第一问结果.py
 
-# 第二问
+# 第二问:完成
 index <- sample(c(TRUE, FALSE), length(attachment1), replace = TRUE, prob = c(0.75, 0.25))
 train <- attachment1[index, ]
 test <- attachment1[!index, ]
@@ -72,7 +72,8 @@ fit <- glm(PCS ~ Month + Day + Delivering + Receiving, data = attachment1)
 summary(fit)
 plot(fit)
 result <- predict(fit, newdata = test, type = "response")
-
+result[result < 0] <- 0
+# 分层运算
 result <- list()
 for (i in LETTERS) {
     for (j in LETTERS) {
@@ -87,3 +88,17 @@ for (i in LETTERS) {
         }
     }
 }
+# 结果输出
+Month <-      c(4,   4,   4,   4,   4,   4,   4,   4)
+Day <-        c(18,  18,  18,  18,  19,  19,  19,  19)
+Delivering <- c("M", "Q", "K", "G", "V", "A", "D", "L")
+Receiving <-  c("U", "V", "L", "V", "G", "Q", "A", "K")
+goal_data <- data.frame(Month, Day, Delivering, Receiving)
+result <- predict(fit, newdata = goal_data, type = "response")
+goal4.17 <- attachment1[attachment1$X.U.FEFF.Date == "2019-4-17", ]
+goal4.18 <- goal4.17
+goal4.18$Day <- 18
+goal4.19 <- goal4.17
+goal4.19$Day <- 19
+sum4.18 <- sum(predict(fit, newdata = goal4.18, type = "response"))
+sum4.19 <- sum(predict(fit, newdata = goal4.19, type = "response"))

@@ -1,6 +1,7 @@
 library("trend")
 library("plyr")
 library("forecast")
+library("igraph")
 # 数据读入
 attachment1 <- read.csv("附件1.csv", encoding = "UTF-8")
 attachment1[, 1] <- as.Date(attachment1[, 1])
@@ -146,3 +147,5 @@ Delivering <- c("I",  "M",  "S",  "V",  "Y",  "D",  "J",  "Q",  "U",  "Y")
 Receiving <-  c("S",  "G",  "Q",  "A",  "L",  "R",  "K",  "O",  "O",  "W")
 goal_data <- data.frame(Year, Month, Day, Delivering, Receiving)
 result <- predict(fit, newdata = goal_data, type = "response")
+
+# 第四问见 第四问-最短路.py

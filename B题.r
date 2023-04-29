@@ -1,5 +1,6 @@
 library("trend")
 library("plyr")
+library("forecast")
 # 数据读入
 attachment1 <- read.csv("附件1.csv", encoding = "UTF-8")
 attachment1[, 1] <- as.Date(attachment1[, 1])
@@ -67,8 +68,6 @@ index <- sample(c(TRUE, FALSE), length(attachment1), replace = TRUE, prob = c(0.
 train <- attachment1[index, ]
 test <- attachment1[!index, ]
 fit <- glm(PCS ~ Month + Day + Delivering + Receiving, data = train)
-
-fit <- glm(PCS ~ Month + Day + Delivering + Receiving, data = attachment1)
 summary(fit)
 plot(fit)
 result <- predict(fit, newdata = test, type = "response")
@@ -89,6 +88,7 @@ for (i in LETTERS) {
     }
 }
 # 结果输出
+fit <- glm(PCS ~ Month + Day + Delivering + Receiving, data = attachment1)
 Month <-      c(4,   4,   4,   4,   4,   4,   4,   4)
 Day <-        c(18,  18,  18,  18,  19,  19,  19,  19)
 Delivering <- c("M", "Q", "K", "G", "V", "A", "D", "L")
@@ -102,3 +102,47 @@ goal4.19 <- goal4.17
 goal4.19$Day <- 19
 sum4.18 <- sum(predict(fit, newdata = goal4.18, type = "response"))
 sum4.19 <- sum(predict(fit, newdata = goal4.19, type = "response"))
+result
+sum4.18
+sum4.19
+
+# 第三问:完成
+attachment2 <- read.csv("附件2.csv", encoding = "UTF-8")
+attachment2[, 1] <- as.Date(attachment2[, 1])
+attachment2[, "Day"] <- as.integer(format(attachment2[, 1], "%d"))
+attachment2[, "Month"] <- as.integer(format(attachment2[, 1], "%m"))
+attachment2[, "Year"] <- as.integer(format(attachment2[, 1], "%Y"))
+#正式处理
+index <- sample(c(TRUE, FALSE), length(attachment2), replace = TRUE, prob = c(0.75, 0.25))
+train <- attachment2[index, ]
+test <- attachment2[!index, ]
+fit <- glm(PCS ~ Year + Month + Day + Delivering + Receiving, data = train)
+result <- predict(fit, newdata = test, type = "response")
+result[result < 0] <- 0
+# 时间序列
+time_pre <- read.csv("附件2-时间序列预处理.csv", encoding = "UTF-8") # 可以通过截断csv文件的方法实现预测
+time2 <- ts(time_pre, c(2020, 119), frequency = 273)
+# 调用此函数, 便可预测路线的在下两天的通断情况
+predictRouteAccess <- function(route) {
+    fit <- ets(time2[, route])
+    return(forecast(fit, 2))
+}
+predictRouteAccess("IS")
+predictRouteAccess("MG")
+predictRouteAccess("SQ")
+predictRouteAccess("VA")
+predictRouteAccess("YL")
+predictRouteAccess("DR")
+predictRouteAccess("JK")
+predictRouteAccess("QO")
+predictRouteAccess("UO")
+predictRouteAccess("YW")
+# 若能正常发货, 则发货数量预测
+fit <- glm(PCS ~ Year + Month + Day + Delivering + Receiving, data = attachment2)
+Year <-       c(2023, 2023, 2023, 2023, 2023, 2023, 2023, 2023, 2023, 2023)
+Month <-      c(4,    4,    4,    4,    4,    4,    4,    4,    4,    4)
+Day <-        c(28,   28,   28,   28,   28,   29,   29,   29,   29,   29)
+Delivering <- c("I",  "M",  "S",  "V",  "Y",  "D",  "J",  "Q",  "U",  "Y")
+Receiving <-  c("S",  "G",  "Q",  "A",  "L",  "R",  "K",  "O",  "O",  "W")
+goal_data <- data.frame(Year, Month, Day, Delivering, Receiving)
+result <- predict(fit, newdata = goal_data, type = "response")

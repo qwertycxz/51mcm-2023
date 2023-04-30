@@ -2,6 +2,8 @@ library("trend")
 library("plyr")
 library("forecast")
 library("igraph")
+library("fitdistrplus")
+library("logspline")
 # 数据读入
 attachment1 <- read.csv("附件1.csv", encoding = "UTF-8")
 attachment1[, 1] <- as.Date(attachment1[, 1])
@@ -149,3 +151,30 @@ goal_data <- data.frame(Year, Month, Day, Delivering, Receiving)
 result <- predict(fit, newdata = goal_data, type = "response")
 
 # 第四问见 第四问-最短路.py
+
+# 第五问
+# 固定
+min_pre <- read.csv("附件2-季度最小值.csv", encoding = "UTF-8")
+standard <- apply(min_pre, 2, sd)
+# 42 × len
+# 非固定
+distribution_2022_3 <- read.csv("附件2-分季度分布/20223季度.csv", encoding = "UTF-8") - 42
+distribution_2023_1 <- read.csv("附件2-分季度分布/20231季度.csv", encoding = "UTF-8") - 42
+distribution_all <- read.csv("附件2-全分布.csv", encoding = "UTF-8") - 42
+getAll <- function(route, data = distribution_all) {
+    sorted <- data[, route]
+    return(sorted)
+}
+plot(getAll("VN"))
+plot(getAll("VQ"))
+plot(getAll("JI"))
+plot(getAll("OG"))
+plot(getAll("VN", distribution_2022_3))
+plot(getAll("VQ", distribution_2022_3))
+plot(getAll("JI", distribution_2023_1))
+plot(getAll("OG", distribution_2023_1))
+descdist(as.numeric(na.omit(distribution_all[, "VN"])))
+descdist(as.numeric(na.omit(distribution_all[, "VQ"])))
+descdist(as.numeric(na.omit(distribution_all[, "JI"])))
+descdist(as.numeric(na.omit(distribution_all[, "OG"])))
+# 其他数据使用 Excel 处理
